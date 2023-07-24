@@ -59,7 +59,14 @@ void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t *
     "str r2, [sp, %2]               \n"
 
     /* prepare arguments and call function: app_error_fault_handler */
+#ifdef __clang__
+    /* https://bugs.llvm.org/show_bug.cgi?id=20117 */
+#define ASM(C) ASM_(C)
+#define ASM_(C) "ldr r0, =" #C "\n"
+    ASM(NRF_FAULT_ID_SDK_ERROR)
+#else
     "ldr r0, =%4                    \n"
+#endif
     "mov r1, lr                     \n"
     "mov r2, sp                     \n"
     "bl  %5                         \n"
